@@ -1,5 +1,6 @@
 package com.abearablecode.todo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -55,6 +56,17 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapter, View item, int position, long id) {
+                //Item selectedItem = new Item(item.toString(),position);
+                Intent i = new Intent(MainActivity.this, EditItemActivity.class);
+                i.putExtra("item", itemsAdapter.getItem(position));
+                i.putExtra("position", position);
+                startActivity(i);
+            }
+        });
     }
 
     private void readItems() {
