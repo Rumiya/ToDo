@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.apache.commons.io.FileUtils;
 
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> items;
     ArrayAdapter<String> itemsAdapter;
     ListView lvItems;
+    private final int REQUEST_CODE = 200;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,14 +49,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupListViewListener() {
         lvItems.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                    @Override
-                    public boolean onItemLongClick(AdapterView<?> adapter, View item, int pos, long id) {
-                        items.remove(pos);
-                        itemsAdapter.notifyDataSetChanged();
-                        writeItems();
-                        return true;
-                    }
-                }
+                                               @Override
+                                               public boolean onItemLongClick(AdapterView<?> adapter, View item, int pos, long id) {
+                                                   items.remove(pos);
+                                                   itemsAdapter.notifyDataSetChanged();
+                                                   writeItems();
+                                                   return true;
+                                               }
+                                           }
         );
 
         lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -62,9 +64,10 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapter, View item, int position, long id) {
                 //Item selectedItem = new Item(item.toString(),position);
                 Intent i = new Intent(MainActivity.this, EditItemActivity.class);
-                i.putExtra("item", itemsAdapter.getItem(position));
+                i.putExtra("text", itemsAdapter.getItem(position));
                 i.putExtra("position", position);
-                startActivity(i);
+                //startActivity(i);
+                startActivityForResult(i, 200);
             }
         });
     }
@@ -88,6 +91,20 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent i){
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            // Extract name value from result extras
+            String text = i.getExtras().getString("text");
+            int pos = i.getIntExtra("position",0);
+            //int code = i.getExtras().getInt("code", 0);
+            items.remove(pos);
+            itemsAdapter.insert(text,pos);
+            itemsAdapter.notifyDataSetChanged();
+            writeItems();
+        }
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
