@@ -2,9 +2,13 @@ package com.abearablecode.todo;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by rumiyamurtazina on 12/23/15.
@@ -111,5 +115,36 @@ public class TodoItemDatabase extends SQLiteOpenHelper {
         // Updating a to do list item for a specific item id
         return db.update(TABLE_ITEMS, values, KEY_ITEM_ID + " = ?",
                 new String[] { String.valueOf(item.id)});
+    }
+
+    // Get all items in the database
+    public List<Item> getAllItems(){
+        List<Item> items = new ArrayList<>();
+
+        // SELECT * FROM ITEMS
+        String ITEMS_SELECT_QUERY = String.format("SELECT * FROM " + TABLE_ITEMS);
+
+        // "getReadableDatabase()" and "getWriteableDatabase()" return the same object (except under low
+        // disk space scenarios)
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(ITEMS_SELECT_QUERY, null);
+        try {
+            if (cursor.moveToFirst()) {
+                do {
+                    Item newItem = new Item();
+                    newItem.id = cursor.getInt(cursor.getColumnIndex(KEY_ITEM_ID));
+                    newItem.text = cursor.getString(cursor.getColumnIndex(KEY_ITEM_TEXT));
+
+                    items.add(newItem);
+                } while(cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Error while trying to get posts from database");
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+        return items;
     }
 }

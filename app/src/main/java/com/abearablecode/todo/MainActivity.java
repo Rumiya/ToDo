@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -20,12 +21,15 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     ArrayList<String> items;
     ArrayAdapter<String> itemsAdapter;
     ListView lvItems;
+    List<Item> dbitems;
+
     private final int REQUEST_CODE = 200;
 
     @Override
@@ -33,7 +37,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_main);
         lvItems = (ListView)findViewById(R.id.lvItems);
+        items = new ArrayList<String>();
         readItems();
+
+        // Get singleton instance of database
+        //TodoItemDatabase databaseHelper = TodoItemDatabase.getInstance(this);
+
+        // Get all posts from database
+        //dbitems = databaseHelper.getAllItems();
+
+//        for (Item item: dbitems){
+//            items.add(item.text);
+//        }
+
         itemsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
         lvItems.setAdapter(itemsAdapter);
         setupListViewListener();
@@ -43,6 +59,13 @@ public class MainActivity extends AppCompatActivity {
         EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
         String itemText = etNewItem.getText().toString();
         itemsAdapter.add(itemText);
+
+//        Item item = new Item();
+//        item.text = itemText;
+//        // Add a new item to the database
+//        TodoItemDatabase databaseHelper = TodoItemDatabase.getInstance(this);
+//        databaseHelper.addItem(item);
+
         etNewItem.setText("");
         writeItems();
     }
@@ -66,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
                 Intent i = new Intent(MainActivity.this, EditItemActivity.class);
                 i.putExtra("text", itemsAdapter.getItem(position));
                 i.putExtra("position", position);
-                //startActivity(i);
                 startActivityForResult(i, 200);
             }
         });
